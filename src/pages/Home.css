@@ -2,9 +2,10 @@
     display: flex;
     justify-content: center;
     gap: 1rem;
+    margin-bottom: 2.5rem;
 }
 
-.media-icons img, a {
+.media-icons img, .media-icons a {
     height: 2rem;
     border-radius: 100%;
     transition: 0.2s ease-out;
@@ -12,4 +13,16 @@
 
 .media-icons img:hover {
     transform: scale(1.5);
+}
+
+.resume-link {
+    padding: 1rem;
+    text-decoration: none;
+    color: white;
+    background-color: #FF4136;
+    transition: 0.2s ease-out;
+}
+
+.resume-link:hover {
+    background-color: #333;
 }

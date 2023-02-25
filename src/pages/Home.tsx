@@ -26,14 +26,18 @@ export default function Home() {
                 >
                     <img src='/Facebook.png' alt='Facebook' />
                 </a>
-                <a
-                    href='mailto:lozano.joel.a@gmail.com'
-                    // rel='noopener noreferrer'
-                    // target='_blank'
-                >
+                <a href='mailto:lozano.joel.a@gmail.com'>
                     <img src='/Gmail.png' alt='Gmail' /> 
                 </a>
             </div>
+            <a
+                className='resume-link'
+                href='/Lozano_Resume.pdf'
+                rel='noopener noreferrer'
+                target='_blank'
+            >
+                View Resume
+            </a>
         </>
     );
 }
