@@ -2,8 +2,6 @@ import { NavLink } from 'react-router-dom';
 import './NavBar.css';
 
 export default function NavBar() {
-    const activeClassName = 'active';
-
     return (
         <nav className='nav'>
             <NavLink to='/' className='site-title'>Joel Lozano</NavLink>
