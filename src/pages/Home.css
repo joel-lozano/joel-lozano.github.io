@@ -55,7 +55,7 @@
     background-color: #333;
 }
 
-@media (width <= 550px) {
+@media (width <= 400px) {
     .container {
         flex-direction: column-reverse;
     }
