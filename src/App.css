@@ -5,7 +5,7 @@
     --light-border: black;
 
     /* Dark theme */
-    --dark-bg: #1c1f23;
+    --dark-bg: black;
     --dark-fg: white;
     --dark-border: gray;
     
@@ -24,6 +24,7 @@ body {
     margin: 0;
     background-color: var(--current-bg);
     color: var(--current-fg);
+    user-select: none;
 }
 
 @media (prefers-color-scheme: light) {
