@@ -26,10 +26,6 @@ body {
     color: var(--current-fg);
 }
 
-.container {
-    text-align: center;
-}
-
 @media (prefers-color-scheme: light) {
     :root {
         --current-bg: var(--light-bg);

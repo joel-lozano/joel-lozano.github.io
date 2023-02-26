@@ -1,11 +1,39 @@
+.container {
+    display: flex;
+    height: 94vh;
+}
+
+.contacts {
+    flex: 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.contacts h1 {
+    font-size: 2rem;
+}
+
+.profile-photo {
+    flex: 3;
+}
+
+.profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .media-icons {
     display: flex;
     justify-content: center;
     gap: 1rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
 }
 
-.media-icons img, .media-icons a {
+.media-icons * {
     height: 2rem;
     border-radius: 100%;
     transition: 0.2s ease-out;
