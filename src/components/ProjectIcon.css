@@ -1,0 +1,20 @@
+.project-icon {
+    text-decoration: none;
+}
+
+.project-icon, .project-icon:visited {
+    color: #0074D9;
+}
+
+.project-icon div {
+    /* border: 1px solid gray; */
+    background-color: #1e1e1e;
+    border-radius: 18px;
+    padding: 2rem;
+    transition: 0.1s ease-out;
+}
+
+.project-icon div:hover {
+    background-color: #2c2c2c;
+    color: rgb(173, 173, 173);
+}
