@@ -1,5 +1,5 @@
 .projects-container {
-    padding: 1rem 2rem;
+    padding: 0rem 50vh;
 }
 
 .projects-container h2 {
@@ -12,4 +12,10 @@
     display: flex;
     list-style-type: none;
     gap: 2rem;
+}
+
+@media (width <= 700px) {
+    .projects-container {
+        padding: 0rem 2rem;
+    }
 }

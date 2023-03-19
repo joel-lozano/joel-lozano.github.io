@@ -38,8 +38,8 @@ export default function Projects() {
             <ul className='projects-list'>
                 <li>
                     <ProjectIcon
-                        name=''
-                        link='#'
+                        name='Web Scraper'
+                        link='https://gist.github.com/joel-lozano/9f6558f5675701e7890d960271d1ee22'
                     />
                 </li>
             </ul>
