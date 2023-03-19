@@ -24,6 +24,12 @@ export default function Projects() {
                         link='https://joel-lozano.github.io/snake-game'
                     />
                 </li>
+                <li>
+                    <ProjectIcon
+                        name='Portfolio Site'
+                        link='https://joel-lozano.github.io'
+                    />
+                </li>
             </ul>
             <h2>Backend</h2>
             <ul className='projects-list'>
