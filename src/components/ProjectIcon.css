@@ -1,5 +1,10 @@
 .project-icon {
     text-decoration: none;
+    transition: 0.2s ease-out;
+}
+
+.project-icon div:hover {
+    transform: scale(1.15);
 }
 
 .project-icon, .project-icon:visited {
