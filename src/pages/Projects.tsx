@@ -3,13 +3,13 @@ import ProjectIcon from '../components/ProjectIcon';
 
 export default function Projects() {
     return (
-        <div className='grid'>
+        <div className='projects-container'>
             <h2>Frontend</h2>
             <ul className='projects-list'>
                 <li>
                     <ProjectIcon
-                        name='Notes App'
-                        link='https://joel-lozano.github.io/notes-app'
+                        name='Message Board'
+                        link='https://joel-lozano.github.io/message-board'
                     />
                 </li>
                 <li>
@@ -29,7 +29,7 @@ export default function Projects() {
             <ul className='projects-list'>
                 <li>
                     <ProjectIcon
-                        name='Notes API'
+                        name='Posts API'
                         link='https://github.com/joel-lozano/notes-app/tree/main/server'
                     />
                 </li>
@@ -37,7 +37,10 @@ export default function Projects() {
             <h2>Other Projects</h2>
             <ul className='projects-list'>
                 <li>
-                    {/* TODO: Populate */}
+                    <ProjectIcon
+                        name=''
+                        link='#'
+                    />
                 </li>
             </ul>
         </div>

@@ -8,6 +8,8 @@
 
 .project-icon div {
     /* border: 1px solid gray; */
+    max-width: 7rem;
+    text-align: center;
     background-color: #1e1e1e;
     border-radius: 18px;
     padding: 2rem;

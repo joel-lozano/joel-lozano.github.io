@@ -2,7 +2,7 @@ import './Home.css';
 
 export default function Home() {
     return (
-        <div className='container'>
+        <div className='home-container'>
             <div className='contacts'>
                 <h1>Joel Lozano</h1>
                 <div className='media-icons'>
@@ -41,7 +41,7 @@ export default function Home() {
                 </a>
             </div>
             <div className='profile-photo'>
-                <img src='/Profile_Photo.jpg' />
+                <img src='/photos/Profile.jpg' />
             </div>
         </div>
     );

@@ -1,0 +1,22 @@
+.about-container {
+    display: flex;
+    height: 94vh;
+}
+
+.personal-photo {
+    flex: 3;
+}
+
+.personal-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bio {
+    flex: 4;
+    font-size: 1.3rem;
+    text-align: center;
+    padding: 1rem;
+    margin: auto;
+}
