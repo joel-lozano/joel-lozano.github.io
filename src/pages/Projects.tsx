@@ -42,7 +42,7 @@ export default function Projects() {
             <ul className='projects-list'>
                 <li>
                     <ProjectIcon
-                        name='Posts API'
+                        name='Message Board Server'
                         link='https://github.com/joel-lozano/notes-app/tree/main/server'
                     />
                 </li>
