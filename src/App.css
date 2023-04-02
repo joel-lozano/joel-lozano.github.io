@@ -25,6 +25,7 @@ body {
     background-color: var(--current-bg);
     color: var(--current-fg);
     user-select: none;
+    height: 125vh;
 }
 
 @media (prefers-color-scheme: light) {

@@ -12,10 +12,10 @@
 }
 
 .project-icon div {
-    /* border: 1px solid gray; */
     max-width: 7rem;
     text-align: center;
     background-color: #1e1e1e;
+    background-size: cover;
     border-radius: 18px;
     padding: 2rem;
     transition: 0.1s ease-out;

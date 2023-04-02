@@ -1,6 +1,11 @@
 import './ProjectIcon.css';
 
 export default function ProjectIcon(props: any) {
+    const divStyle =
+        props.image ?
+        {backgroundImage: `url(${props.image}`} :
+        undefined
+
     return (
         <a
             href={props.link}
@@ -8,7 +13,7 @@ export default function ProjectIcon(props: any) {
             target='_blank'
             className='project-icon'
         >
-            <div>
+            <div style={divStyle}>
                 {props.name}
             </div>
         </a>
