@@ -14,6 +14,10 @@
     gap: 2rem;
 }
 
+/* .projects-list:last-child {
+    padding-bottom: 2rem;
+} */
+
 @media (width <= 1000px) {
     .projects-container {
         padding: 0rem 2rem;
