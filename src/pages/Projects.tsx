@@ -10,7 +10,7 @@ export default function Projects() {
                     <ProjectIcon
                         name='Message Board'
                         image='/webpages/message-board.png'
-                        link='https://joel-lozano.github.io/message-board'
+                        link='https://jlz-message-board.azurewebsites.net'
                     />
                 </li>
             </ul>
