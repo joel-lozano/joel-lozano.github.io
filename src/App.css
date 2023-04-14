@@ -1,18 +1,18 @@
 :root {
     /* Light theme */
     --light-bg: white;
-    --light-fg: #000;
+    --light-fg: #4e4e4e;
     --light-border: black;
 
     /* Dark theme */
-    --dark-bg: black;
+    /* --dark-bg: black;
     --dark-fg: white;
-    --dark-border: gray;
+    --dark-border: gray; */
     
     /* Defaults */
-    --current-bg: var(--dark-bg);
-    --current-fg: var(--dark-fg);
-    --current-border: var(--dark-border);
+    --current-bg: var(--light-bg);
+    --current-fg: var(--light-fg);
+    --current-border: var(--light-border);
 }
 
 * {
@@ -20,18 +20,23 @@
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
+html {
+    margin: 0;
+    padding: 0;
+}
+
 body {
     margin: 0;
+    padding: 0;
     background-color: var(--current-bg);
     color: var(--current-fg);
     user-select: none;
-    height: 132vh;
 }
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
     :root {
         --current-bg: var(--light-bg);
         --current-fg: var(--light-fg);
         --current-border: var(--light-border);
     }
-}
+} */

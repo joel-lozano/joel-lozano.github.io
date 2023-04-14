@@ -1,5 +1,5 @@
 .nav {
-    background-color: #333;
+    background-color: var(--current-fg);
     color: white;
     display: flex;
     justify-content: space-between;
@@ -35,8 +35,4 @@
 
 .nav .navlink:hover {
     background-color: #777;
-}
-
-.nav .navlink:active {
-    background-color: #555;
 }

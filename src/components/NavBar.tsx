@@ -2,6 +2,8 @@ import { NavLink } from 'react-router-dom';
 import './NavBar.css';
 
 export default function NavBar() {
+    const navlinkBg = '#888';
+
     return (
         <nav className='nav'>
             <NavLink to='/' className='site-title'>Joel Lozano</NavLink>
@@ -11,7 +13,7 @@ export default function NavBar() {
                         to='/projects'
                         className='navlink'
                         style={({ isActive }) => ({
-                            background: isActive ? '#555' : undefined
+                            background: isActive ? navlinkBg : undefined
                         })}
                     >
                         Projects
@@ -22,7 +24,7 @@ export default function NavBar() {
                         to='/about'
                         className='navlink'
                         style={({ isActive }) => ({
-                            background: isActive ? '#555' : undefined
+                            background: isActive ? navlinkBg : undefined
                         })}
                     >
                         About

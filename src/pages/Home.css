@@ -1,6 +1,10 @@
 .home-container {
     display: flex;
-    height: 94vh;
+    position: fixed;
+    top: 5.4vh;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 .contacts {
@@ -14,6 +18,7 @@
 
 .contacts h1 {
     font-size: 2rem;
+    color: var(--current-fg);
 }
 
 .profile-photo {
@@ -47,12 +52,12 @@
     padding: 1rem;
     text-decoration: none;
     color: white;
-    background-color: #FF4136;
+    background-color: #70baee;
     transition: 0.2s ease-out;
 }
 
 .resume-link:hover {
-    background-color: #333;
+    background-color: #4e4e4e;
 }
 
 @media (width <= 400px) {

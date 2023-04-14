@@ -1,6 +1,10 @@
 .about-container {
     display: flex;
-    height: 94vh;
+    position: fixed;
+    top: 5.4vh;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 .personal-photo {
