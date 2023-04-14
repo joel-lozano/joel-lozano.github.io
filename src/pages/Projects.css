@@ -1,5 +1,9 @@
 .projects-container {
-    padding: 0 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 5%;
+    /* padding: 0 0 5% 10%; */
 }
 
 .projects-container h2 {
@@ -7,14 +11,15 @@
 }
 
 .projects-list {
+    margin: 0;
     padding: 0;
     display: flex;
     list-style-type: none;
     gap: 2rem;
 }
 
-@media (width <= 1000px) {
+/* @media (width <= 1000px) {
     .projects-container {
         padding: 0rem 2rem;
     }
-}
+} */
