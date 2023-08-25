@@ -10,27 +10,30 @@ interface ProjectDisplayProps {
 }
 
 const ProjectDisplay = ({name, image, link, headline, tags, features}: ProjectDisplayProps) => {
-    const arrayToList = (array: string[]) => {
-        return array.map((value) => <li>{value}</li>)
+    const generateListItems = (array: string[]) => {
+        return array.map((value) => <li key={value}>{value}</li>)
     };
 
     return (
-        <li className='project-display-container' key={name}>
-            <figure>
-                <img src={image} alt={name} />
-            </figure>
-            <article>
-                <h1>{name}</h1>
-                <h2>{headline}</h2>
-                <a href={link}>Project Demo</a>
-                <ul className='tags'>
-                    {arrayToList(tags)}
-                </ul>
+        <a href={link} className='link-container' target='_blank' rel='noopener noreferrer'>                
+            <li key={name}>
+                <div className='project-display-container'>
+                    <figure className='figure'>
+                        <img className='project-img' src={image} alt={name} />
+                    </figure>
+                    <article>
+                        <h1 id='project-name' className='header-text'>{name}</h1>
+                        <ul className='tags'>
+                            {generateListItems(tags)}
+                        </ul>
+                    </article>
+                </div>
+                <h2 id='headline' className='header-text'>{headline}</h2>
                 <ul className='features'>
-                    {arrayToList(features)}
+                    {generateListItems(features)}
                 </ul>
-            </article>
-        </li>
+            </li>
+        </a>
     );
 }
 
