@@ -13,6 +13,13 @@ export default function Projects() {
                         link='https://jlz-message-board.azurewebsites.net'
                     />
                 </li>
+                <li>
+                    <ProjectIcon
+                        name='Article Generator'
+                        image='/webpages/article-generator.png'
+                        link='https://jlz-message-board.azurewebsites.net'
+                    />
+                </li>
             </ul>
             <h2>Frontend</h2>
             <ul className='projects-list'>
