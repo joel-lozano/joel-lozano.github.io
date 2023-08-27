@@ -6,32 +6,32 @@ interface ProjectDisplayProps {
     link: string;
     headline: string;
     tags: string[];
-    features: string[];
+    features?: string[];
 }
 
 const ProjectDisplay = ({name, image, link, headline, tags, features}: ProjectDisplayProps) => {
-    const generateListItems = (array: string[]) => {
-        return array.map((value) => <li key={value}>{value}</li>)
+    const generateListItems = (array: string[] | undefined) => {
+        return array ? array.map((value) => <li key={value}>{value}</li>) : null;
     };
 
     return (
-        <a href={link} className='link-container' target='_blank' rel='noopener noreferrer'>                
+        <a href={link} className='link-container' target='_blank' rel='noopener noreferrer'>
             <li key={name}>
                 <div className='project-display-container'>
-                    <figure className='figure'>
-                        <img className='project-img' src={image} alt={name} />
-                    </figure>
+                    <img className='project-img' src={image} alt={name} />
                     <article>
                         <h1 id='project-name' className='header-text'>{name}</h1>
                         <ul className='tags'>
                             {generateListItems(tags)}
                         </ul>
+                        <div>
+                            <h2 id='headline' className='header-text'>{headline}</h2>
+                            <ul className='features'>
+                                {generateListItems(features)}
+                            </ul>
+                        </div>
                     </article>
                 </div>
-                <h2 id='headline' className='header-text'>{headline}</h2>
-                <ul className='features'>
-                    {generateListItems(features)}
-                </ul>
             </li>
         </a>
     );
