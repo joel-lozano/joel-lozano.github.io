@@ -1,7 +1,7 @@
 .projects-container {
     display: flex;
-    flex-direction: column;
-    place-items: center;
-    width: 60%;
-    gap: 1rem;
+    flex-wrap: wrap;
+    place-content: center;
+    gap: 1.5rem;
+    padding: 0;
 }
