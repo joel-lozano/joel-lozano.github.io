@@ -40,6 +40,7 @@
     margin: 0;
     padding: 0;
     width: 30%;
+    object-fit: cover;
     border-radius: 18px;
 }
 
@@ -79,7 +80,7 @@
         gap: 0rem;
     }
 
-    .project-display-container img {
+    .project-img {
         width: 50%;
     }
 
