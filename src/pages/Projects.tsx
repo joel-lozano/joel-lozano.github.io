@@ -14,7 +14,7 @@ export default function Projects() {
             <ProjectDisplay
                 name='Message Board'
                 image='/webpages/message-board.png'
-                link='https://jlz-message-board.azurewebsites.net'
+                link='https://jlz-message-board.vercel.app'
                 headline='First fullstack web app'
                 tags={['TypeScript', 'Next.js', 'React.js', 'OAuth', 'Prisma']}
                 features={[
