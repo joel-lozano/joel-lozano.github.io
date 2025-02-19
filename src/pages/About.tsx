@@ -8,9 +8,13 @@ export default function About() {
             </div>
             <div className='bio'>
                 <h2>Hi!</h2>
-                I'm an aspiring software developer born and raised in New York City.
-                My hobbies include playing bass guitar, producing music digitally,
-                and playing soccer.
+                <p>
+                    I'm an aspiring software developer born and raised in New York City.
+                </p>
+                <p>
+                    My hobbies include playing bass guitar, producing music digitally,
+                    and playing soccer.
+                </p>
             </div>
         </div>
     );

@@ -23,4 +23,11 @@
     text-align: center;
     padding: 1rem;
     margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bio p {
+    width: 70%;
 }
