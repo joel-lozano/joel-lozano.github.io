@@ -1,6 +1,16 @@
-import { aboutTags, experience, heroKeywords, languages, profile, stack } from '../data/profile';
+import { aboutTags, experience, languages, profile, stack } from '../data/profile';
 import photo from '../assets/profile.jpg';
-import { GitHubIcon, LinkedInIcon } from '../components/Icons';
+import { GitHubIcon, LinkedInIcon, StackIcon } from '../components/Icons';
+
+// Split tags into two rows of roughly equal text length, keeping their order, so the centered rows come out about the same width.
+function splitByLength(tags: string[]): [string[], string[]] {
+    const width = (t: string) => t.length + 4; // + chip padding and gap, in characters
+    const total = tags.reduce((n, t) => n + width(t), 0);
+    let run = 0;
+    let cut = 0;
+    while (cut < tags.length && Math.abs(total - 2 * (run + width(tags[cut]))) < Math.abs(total - 2 * run)) run += width(tags[cut++]);
+    return [tags.slice(0, cut), tags.slice(cut)];
+}
 
 export default function Home() {
     return (
@@ -11,11 +21,6 @@ export default function Home() {
                         <h1>{profile.name}</h1>
                         <p className='hero-role'>{profile.role}</p>
                         <p className='hero-langs'>{languages.join(' · ')}</p>
-                        <ul className='chips chips-xl' aria-label='Core skills'>
-                            {heroKeywords.map((k) => (
-                                <li key={k.name} className='chip' style={{ '--chip-color': k.color, '--chip-ink': k.ink } as React.CSSProperties}>{k.name}</li>
-                            ))}
-                        </ul>
                         <div className='actions'>
                             <a className='btn btn-primary' href={profile.resume} target='_blank' rel='noopener noreferrer'>Resume</a>
                             <a className='btn btn-icon' href={profile.linkedin} target='_blank' rel='noopener noreferrer' aria-label='LinkedIn' title='LinkedIn'><LinkedInIcon /></a>
@@ -31,14 +36,12 @@ export default function Home() {
                     <h2 id='stack'>Tech Stack</h2>
                     <div className='stack-grid'>
                         {stack.map((g) => (
-                            <div key={g.group} className='stack-group'>
-                                <h3>{g.group}</h3>
-                                <ul className='chips chips-lg'>
-                                    {g.items.map((i) => (
-                                        <li key={i.name} className={'chip' + (i.core ? ' chip-core' : '')}>{i.name}</li>
-                                    ))}
+                            <section key={g.group} className='stack-card' aria-labelledby={`stack-${g.icon}`}>
+                                <h3 id={`stack-${g.icon}`}><StackIcon name={g.icon} />{g.group}</h3>
+                                <ul className='stack-items'>
+                                    {g.items.map((item) => <li key={item}>{item}</li>)}
                                 </ul>
-                            </div>
+                            </section>
                         ))}
                     </div>
                 </div>
@@ -67,9 +70,13 @@ export default function Home() {
             <section className='slide slide-alt' aria-labelledby='about'>
                 <div className='slide-inner'>
                     <h2 id='about'>Off the Clock</h2>
-                    <ul className='chips chips-lg'>
-                        {aboutTags.map((t) => <li key={t} className='chip'>{t}</li>)}
-                    </ul>
+                    <div className='about-rows'>
+                        {splitByLength(aboutTags).map((row, i) => (
+                            <ul key={i} className='chips chips-lg about-row'>
+                                {row.map((t) => <li key={t} className='chip'>{t}</li>)}
+                            </ul>
+                        ))}
+                    </div>
                 </div>
             </section>
 

@@ -15,3 +15,19 @@ export function LinkedInIcon() {
         </svg>
     );
 }
+
+// Outline icons for the Tech Stack card headers. Decorative: the heading carries the name.
+const stackIconPaths = {
+    code: <path d='M8 7l-5 5 5 5M16 7l5 5-5 5' />,
+    layout: <path d='M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3 9h18M9 9v11' />,
+    server: <path d='M5 4h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM5 13h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2zM7 7.5h.01M7 16.5h.01' />,
+    cloud: <path d='M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 17.8 9.5 4.25 4.25 0 0 1 17 18z' />,
+};
+
+export function StackIcon({ name }: { name: keyof typeof stackIconPaths }) {
+    return (
+        <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth={2} strokeLinecap='round' strokeLinejoin='round' aria-hidden='true' focusable='false'>
+            {stackIconPaths[name]}
+        </svg>
+    );
+}

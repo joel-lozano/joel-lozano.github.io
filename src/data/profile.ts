@@ -10,32 +10,16 @@ export const profile = {
     resume: '/Lozano_Resume.pdf',
 };
 
-// Big keywords under the name. Each chip is filled with its language's color, softened to sit with the site's greens; `ink` is the text color on top.
-export const heroKeywords: { name: string; color: string; ink: string }[] = [
-    { name: 'TypeScript', color: '#3d72b8', ink: '#ffffff' },
-    { name: 'React', color: '#4cbfd6', ink: '#06252d' },
-    { name: 'Python', color: '#ecd04e', ink: '#2a2100' },
-    { name: 'Java', color: '#e07a35', ink: '#251000' },
-    { name: 'C', color: '#8fa3bf', ink: '#111a26' },
-];
-
 // Spoken languages, shown in a muted line under the role.
 export const languages = ['English', 'Español', '日本語'];
 
-// Stack groups. `core: true` makes a keyword stand out.
-export const stack: { group: string; items: { name: string; core?: boolean }[] }[] = [
-    {
-        group: 'Frontend',
-        items: [{ name: 'TypeScript', core: true }, { name: 'React', core: true }, { name: 'Next.js' }, { name: 'React Native' }, { name: 'Figma' }],
-    },
-    {
-        group: 'Backend',
-        items: [{ name: 'Python', core: true }, { name: 'FastAPI' }, { name: 'Node.js' }, { name: 'PostgreSQL' }, { name: 'MongoDB' }],
-    },
-    {
-        group: 'Cloud & ops',
-        items: [{ name: 'Azure', core: true }, { name: 'AWS' }, { name: 'CI/CD' }, { name: 'Docker' }, { name: 'SSO' }, { name: 'Git' }],
-    },
+// Stack cards, laid out two per row. Add a skill to `items` or a whole group here; the grid reflows.
+// `icon` picks one of the outline icons in components/Icons.tsx.
+export const stack: { group: string; icon: 'code' | 'layout' | 'server' | 'cloud'; items: string[] }[] = [
+    { group: 'Languages', icon: 'code', items: ['TypeScript', 'JavaScript', 'Python', 'Java', 'C', 'SQL', 'Bash', 'Dart'] },
+    { group: 'Frontend', icon: 'layout', items: ['React', 'Next.js', 'React Native', 'Flutter', 'HTML', 'CSS', 'Figma'] },
+    { group: 'Backend', icon: 'server', items: ['Node.js', 'Express.js', 'FastAPI', 'REST APIs', 'PostgreSQL', 'MongoDB', 'Firebase'] },
+    { group: 'Cloud & ops', icon: 'cloud', items: ['Azure', 'AWS', 'Docker', 'CI/CD', 'Git', 'SSO', 'Jira'] },
 ];
 
 export const experience: { dates: string; title: string; org: string; tags: string[] }[] = [
@@ -45,4 +29,4 @@ export const experience: { dates: string; title: string; org: string; tags: stri
     { dates: '2022', title: 'B.A. Computer Science', org: 'Columbia University', tags: ['CS + Environmental Science', 'Study abroad, Kyoto'] },
 ];
 
-export const aboutTags = ['NYC native', 'Bass guitar', 'FL Studio', 'NYCFooty Weekly Soccer', 'Hiking', 'Rock climbing', 'Run Club'];
+export const aboutTags = ['NYC native', 'Bass guitar', 'FL Studio digital music production', 'Hiking', 'NYCFooty weekly soccer', 'Rock climbing', 'Mountain biking', 'Run club'];
