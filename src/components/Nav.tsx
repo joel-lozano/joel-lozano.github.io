@@ -11,7 +11,7 @@ export default function Nav({ tab }: { tab: Tab }) {
                     <a href='#home' className='tab' aria-current={tab === 'home' ? 'page' : undefined}>Home</a>
                     <a href='#projects' className='tab' aria-current={tab === 'projects' ? 'page' : undefined}>Projects</a>
                 </nav>
-                <a className='nav-resume' href={profile.resume} target='_blank' rel='noopener noreferrer'>Résumé</a>
+                <a className='nav-resume' href={profile.resume} target='_blank' rel='noopener noreferrer'>Resume</a>
             </div>
         </header>
     );

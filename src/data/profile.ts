@@ -8,21 +8,19 @@ export const profile = {
     github: 'https://github.com/joel-lozano',
     linkedin: 'https://www.linkedin.com/in/joelalozano/',
     resume: '/Lozano_Resume.pdf',
-    openTo: 'Open to full-stack & AI engineering roles',
 };
 
-// Big keywords under the name.
-export const heroKeywords = ['TypeScript', 'React', 'Python', 'Azure', 'LLMs'];
-
-// "What I've shipped" tiles: a big keyword plus a caption of five words or fewer.
-export const highlights: { big: string; caption: string }[] = [
-    { big: '5', caption: 'AI apps in production' },
-    { big: 'Solo', caption: 'frontend dev on all five' },
-    { big: 'AI/ML', caption: 'clinical document processing' },
-    { big: 'SSO', caption: 'integrated end to end' },
-    { big: 'CI/CD', caption: 'migrated to Azure containers' },
-    { big: '5', caption: 'interns mentored' },
+// Big keywords under the name. Each chip is filled with its language's color, softened to sit with the site's greens; `ink` is the text color on top.
+export const heroKeywords: { name: string; color: string; ink: string }[] = [
+    { name: 'TypeScript', color: '#3d72b8', ink: '#ffffff' },
+    { name: 'React', color: '#4cbfd6', ink: '#06252d' },
+    { name: 'Python', color: '#ecd04e', ink: '#2a2100' },
+    { name: 'Java', color: '#e07a35', ink: '#251000' },
+    { name: 'C', color: '#8fa3bf', ink: '#111a26' },
 ];
+
+// Spoken languages, shown in a muted line under the role.
+export const languages = ['English', 'Español', '日本語'];
 
 // Stack groups. `core: true` makes a keyword stand out.
 export const stack: { group: string; items: { name: string; core?: boolean }[] }[] = [
@@ -35,20 +33,16 @@ export const stack: { group: string; items: { name: string; core?: boolean }[] }
         items: [{ name: 'Python', core: true }, { name: 'FastAPI' }, { name: 'Node.js' }, { name: 'PostgreSQL' }, { name: 'MongoDB' }],
     },
     {
-        group: 'AI',
-        items: [{ name: 'AI-assisted coding', core: true }, { name: 'LLM integration' }, { name: 'Document processing' }, { name: 'Data labeling' }],
-    },
-    {
         group: 'Cloud & ops',
-        items: [{ name: 'Azure', core: true }, { name: 'CI/CD' }, { name: 'Docker' }, { name: 'SSO' }, { name: 'Git' }],
+        items: [{ name: 'Azure', core: true }, { name: 'AWS' }, { name: 'CI/CD' }, { name: 'Docker' }, { name: 'SSO' }, { name: 'Git' }],
     },
 ];
 
 export const experience: { dates: string; title: string; org: string; tags: string[] }[] = [
-    { dates: 'Jun 2024 – Present', title: 'Full-stack software engineer', org: 'ClinChoice', tags: ['React', 'Python', 'Azure', 'SSO', 'AI/ML'] },
-    { dates: 'Dec 2023 – Jun 2024', title: 'Innovation technology intern', org: 'ClinChoice', tags: ['Data labeling', 'Agile', 'Audit-ready docs'] },
-    { dates: 'Summer 2023', title: 'AI/ML intern', org: 'VG Systems', tags: ['OpenAI', 'DALL·E', 'Azure Speech'] },
+    { dates: 'Jun 2024 – Present', title: 'Full-Stack Software Engineer', org: 'ClinChoice', tags: ['React', 'Python', 'Azure', 'SSO', 'AI/ML'] },
+    { dates: 'Dec 2023 – Jun 2024', title: 'Innovation Technology Intern', org: 'ClinChoice', tags: ['ML data annotation', 'Agile', 'Regulatory document management'] },
+    { dates: 'Summer 2023', title: 'AI/ML Intern', org: 'VG Systems', tags: ['OpenAI', 'DALL·E', 'Azure Speech'] },
     { dates: '2022', title: 'B.A. Computer Science', org: 'Columbia University', tags: ['CS + Environmental Science', 'Study abroad, Kyoto'] },
 ];
 
-export const aboutTags = ['NYC native', 'English', 'Español', '日本語', 'Bass guitar', 'FL Studio', 'Soccer', 'Hiking'];
+export const aboutTags = ['NYC native', 'Bass guitar', 'FL Studio', 'NYCFooty Weekly Soccer', 'Hiking', 'Rock climbing', 'Run Club'];
