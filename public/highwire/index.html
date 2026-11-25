@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Highwire: a daily word game. Find the word that sits right between two others.">
+<meta property="og:title" content="Highwire">
+<meta property="og:description" content="Walk the wire between two words. A new puzzle every day.">
+<title>Highwire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ultra&family=Instrument+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+/* Layout: one column. Circus-poster wordmark, the big-top scene (two platforms, one wire, the net, the crowd), then the round panel. Deliberately single-theme: a night show. */
+:root {
+  --bg: #170f2b;
+  --bg-glow: #2a1a45;
+  --panel: #221838;
+  --panel-2: #2d2148;
+  --line: #3f305f;
+  --ink: #f6ead2;
+  --muted: #b9aacb;
+  --a: #5fd0e6;
+  --b: #ff8fb8;
+  --gold: #ffc94d;
+  --red: #e04b55;
+  --red-deep: #b8323f;
+  --danger: #ff6b6b;
+  --ticket: #f3e6c8;
+  --ticket-ink: #2a1830;
+  --ticket-a: #16788c;
+  --ticket-b: #b8386a;
+  --f-display: "Ultra", "Rockwell Extra Bold", "Rockwell", "Georgia", serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { background: var(--bg); color: var(--ink); }
+body { background: radial-gradient(120% 50% at 50% 0%, var(--bg-glow), transparent 70%), var(--bg); }
+body {
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.kicker { font: 600 11px var(--f-mono); letter-spacing: .28em; text-transform: uppercase; color: var(--gold); margin: 0 0 6px; }
+.logo {
+  font-family: var(--f-display); font-weight: 400; font-size: clamp(40px, 9.5vw, 64px);
+  line-height: .95; letter-spacing: .02em; margin: 0; text-transform: uppercase;
+  color: var(--ink); text-shadow: 3px 3px 0 var(--red-deep);
+}
+.logo .w2 { color: var(--gold); }
+.tag { margin: 6px 0 0; color: var(--muted); font-size: 15px; max-width: 34ch; }
+.hud { display: flex; align-items: center; gap: 14px; }
+.pips { display: flex; gap: 6px; }
+.pips i { width: 26px; height: 6px; border-radius: 3px; background: var(--line); display: block; }
+.pips i.done { background: var(--gold); }
+.pips i.fell { background: var(--red); }
+.pips i.now { background: var(--ink); }
+.total { font-family: var(--f-mono); font-weight: 600; font-variant-numeric: tabular-nums; font-size: 15px; color: var(--muted); white-space: nowrap; }
+.total b { color: var(--ink); font-size: 20px; }
+
+.stage { position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 0 0 2px #c9932f55, 0 24px 60px -24px #000; }
+canvas#scene { display: block; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; background: #140b24; }
+.timer { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: #00000055; }
+.timer i { display: block; height: 100%; width: 100%; background: var(--gold); transform-origin: left center; }
+.timer i.late { background: var(--red); }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font: 600 12px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.prompt { font-family: var(--f-display); font-weight: 400; font-size: clamp(24px, 5.2vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: .01em; }
+.wa { color: var(--a); } .wb { color: var(--b); }
+form { display: flex; gap: 8px; }
+input#guess {
+  flex: 1; min-width: 0; font: 600 20px var(--f-body); color: var(--ink);
+  background: #150d27; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px;
+}
+input#guess::placeholder { color: #7a6a93; font-weight: 400; }
+input#guess:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 0 3px #ffc94d22; }
+.btn {
+  font: 700 15px var(--f-body); letter-spacing: .02em; border-radius: 12px; padding: 12px 18px; cursor: pointer;
+  border: 1.5px solid var(--red); background: var(--red); color: var(--ink);
+  box-shadow: 0 3px 0 var(--red-deep);
+}
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--red-deep); }
+.btn:hover { filter: brightness(1.07); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); box-shadow: none; }
+.btn.next { position: relative; overflow: hidden; isolation: isolate; }
+.btn.next .fill { position: absolute; inset: 0; background: #ffffff59; transform: scaleX(0); transform-origin: left center; z-index: -1; display: block; }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.msg { min-height: 1.5em; color: var(--muted); font-size: 14px; }
+.msg.warn { color: var(--b); }
+.msg.hint { color: var(--gold); }
+
+.verdict { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.verdict .num { font-family: var(--f-display); font-weight: 400; font-size: 52px; line-height: .9; color: var(--gold); font-variant-numeric: tabular-nums; }
+.verdict.fell .num { color: var(--danger); }
+.verdict .lbl { font-family: var(--f-display); font-weight: 400; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; }
+.verdict .you { color: var(--muted); font-size: 15px; width: 100%; }
+.verdict .you b { color: var(--ink); }
+.fits { display: grid; grid-template-columns: auto minmax(0, 1fr) 3ch; gap: 6px 10px; align-items: center; font-size: 14px; font-variant-numeric: tabular-nums; }
+.fits .bar { height: 8px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
+.fits .bar i { display: block; height: 100%; border-radius: 4px; }
+.fits .v { font-family: var(--f-mono); text-align: right; }
+.fits .k { color: var(--muted); }
+.best { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 600 14px var(--f-body); padding: 5px 10px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); display: inline-flex; gap: 6px; }
+.chip span { font-family: var(--f-mono); color: var(--gold); font-size: 13px; }
+.chip.mine { border-color: var(--gold); }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+
+.howto { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; max-width: 60ch; }
+.howto b { color: var(--gold); font-weight: 600; }
+
+/* Results */
+.rank { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 7vw, 46px); line-height: 1; text-transform: uppercase; margin: 0; color: var(--gold); }
+.rows { display: flex; flex-direction: column; gap: 16px; padding-top: 6px; }
+.row { display: grid; grid-template-columns: max-content minmax(48px, 1fr) max-content 3ch 1.6em; gap: 10px; align-items: center; font-size: 14px; }
+.row .ea { color: var(--a); font-weight: 600; text-align: right; min-width: 6ch; }
+.row .eb { color: var(--b); font-weight: 600; min-width: 6ch; }
+.row .wire { position: relative; height: 26px; }
+.row .wire::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: #b9bfdc; border-radius: 1px; }
+.row .wire::after { content: ""; position: absolute; left: 50%; top: 4px; bottom: 4px; width: 1px; background: var(--gold); opacity: .5; }
+.row .dot { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+.row .dot.x { background: none; box-shadow: none; color: var(--danger); font: 700 16px var(--f-mono); width: auto; height: auto; margin: -11px 0 0 -5px; }
+.row .dot em { position: absolute; left: 50%; top: -18px; transform: translateX(-50%); font: 600 12px var(--f-body); font-style: normal; color: var(--ink); white-space: nowrap; }
+.row .sc { font-family: var(--f-mono); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.panel.ticket {
+  position: relative; background: var(--ticket); color: var(--ticket-ink); border: 0;
+  box-shadow: 0 18px 40px -20px #000;
+}
+.ticket .stub { position: relative; }
+.ticket .stub::before, .ticket .stub::after {   /* ticket notches, centered on the tear line */
+  content: ""; position: absolute; bottom: -12px; width: 22px; height: 22px; border-radius: 50%; background: var(--bg);
+}
+.ticket .stub::before { left: -29px; } .ticket .stub::after { right: -29px; }
+.ticket .eyebrow { color: #7c5a6c; }
+.ticket .stub { border-bottom: 2px dashed #c9b28d; padding-bottom: 14px; display: flex; flex-direction: column; gap: 4px; }
+.ticket .rank { color: var(--red-deep); text-shadow: 2px 2px 0 #e8cfa0; }
+.ticket .row .ea { color: var(--ticket-a); } .ticket .row .eb { color: var(--ticket-b); }
+.ticket .row .wire::before { background: #6b5560; }
+.ticket .row .wire::after { background: var(--red-deep); }
+.ticket .row .dot { background: var(--red); box-shadow: none; }
+.ticket .row .dot.x { background: none; color: var(--red-deep); }
+.ticket .row .dot em { color: var(--ticket-ink); }
+.ticket .row .em { font-size: 16px; text-align: center; }
+.ticket .note { color: #7c5a6c; }
+.ticket .btn.ghost { color: var(--ticket-ink); border-color: #c9b28d; }
+.ticket .share textarea { background: #fffaf0; color: var(--ticket-ink); border-color: #c9b28d; }
+.share textarea { width: 100%; min-height: 150px; background: #0b0f2a; color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 10px; font: 13px var(--f-mono); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+.devbar { font: 600 12px var(--f-mono); color: var(--muted); border: 1px dashed var(--line); border-radius: 10px; padding: 8px 10px; }
+.devbar select { font: inherit; color: var(--ink); background: #0b0f2a; border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; margin-left: 6px; }
+details { color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+details summary { cursor: pointer; color: var(--ink); font: 600 12px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; }
+details p { margin: 8px 0 0; max-width: 64ch; }
+
+.shake { animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+@media (max-width: 520px) {
+  canvas#scene { aspect-ratio: 4 / 3; }
+  .verdict .num { font-size: 48px; }
+  .row { gap: 8px; font-size: 13px; }
+  .pips i { width: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .shake { animation: none; } }
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <p class="kicker">★ The daily word act ★</p>
+      <h1 class="logo">High<span class="w2">wire</span></h1>
+      <p class="tag">Find the word that sits right between two others.</p>
+    </div>
+    <div class="hud">
+      <div class="pips" id="pips" aria-label="Progress"></div>
+      <div class="total" id="total" aria-live="polite"><b>0</b> / 500</div>
+    </div>
+  </header>
+
+  <div class="stage">
+    <canvas id="scene" role="img" aria-label="A tightrope walker on a wire strung between two rooftops. Each rooftop sign shows one of the two words."></canvas>
+    <div class="timer" id="timerWrap" hidden><i id="timerBar"></i></div>
+  </div>
+
+  <section class="panel" id="panel" aria-live="polite"></section>
+
+  <details>
+    <summary>How scoring works</summary>
+    <p>Every word has a meaning fingerprint, an embedding from Amazon Titan Text Embeddings. For each pair, all 50,000 words in the dictionary are ranked by how close they are to each sign word. Your word's fit for each side comes from its rank, and its score comes from how its weaker fit ranks against every other word. The single best middle in the dictionary scores 100.</p>
+    <p>Common words are scored ahead of time, so most guesses never leave your browser. Rare words, names and two-word phrases are scored live by a small AWS Lambda function and saved, so nobody waits on the same word twice.</p>
+  </details>
+</div>
+
+<script>
+(function () {
+"use strict";
+
+/* ---------- Puzzle data: data/<date>.json, built by the pipeline ---------- */
+const CFG = window.HIGHWIRE_CONFIG || {};
+const API_URL = String(CFG.apiUrl || "").trim();
+const ROUND_MS = 15000;
+const LATE_MS = 5000;           // timer bar turns red
+const ADVANCE_MS = 3000;        // pause after a landing before the next pair
+const ADVANCE_FELL_MS = 2600;   // pause after a fall
+const FALL_BELOW = 30;
+let DAY = null, PAIRS = [];
+
+/* These three mirror lambda/scoring.py. Keep them in sync. */
+function normalize(raw) {
+  const text = String(raw || "").toLowerCase().replace(/’/g, "'").split(/\s+/).filter(Boolean).join(" ");
+  if (!text || text.length > 40) return null;
+  const toks = text.split(" ");
+  if (toks.length > 2 || !toks.every(t => /^[a-z][a-z'-]*$/.test(t))) return null;
+  return text;
+}
+function variants(w) {
+  const v = [w];
+  if (w.endsWith("ies") && w.length > 4) v.push(w.slice(0, -3) + "y");
+  if (w.endsWith("es") && w.length > 3) v.push(w.slice(0, -2));
+  if (w.endsWith("s") && w.length > 2) v.push(w.slice(0, -1));
+  return v;
+}
+function touchesSign(text, a, b) {
+  return text.replace(/-/g, " ").split(" ").filter(Boolean).some(tok => {
+    const vs = variants(tok);
+    return [a, b].some(s => vs.includes(s) || (s.length >= 4 && (tok.startsWith(s) || tok.endsWith(s))));
+  });
+}
+function pluralForms(w) {
+  const out = [w, ...variants(w).filter(v => v !== w)];
+  if (w.endsWith("y") && w.length > 2 && !"aeiou".includes(w[w.length - 2])) out.push(w.slice(0, -1) + "ies");
+  else if (/(s|x|z|ch|sh)$/.test(w)) out.push(w + "es");
+  else out.push(w + "s");
+  return [...new Set(out)];
+}
+function lookup(p, text) {
+  // Singular and plural count as one answer; the puzzle file already gives
+  // every form in it the best score, so the first form found is the answer.
+  const toks = text.split(" "), last = toks.pop();
+  for (const f of pluralForms(last)) {
+    const e = p.words[[...toks, f].join(" ")];
+    if (e) return { w: text, fa: e[0], fb: e[1], s: e[2], t: e[0] + e[1] ? e[1] / (e[0] + e[1]) : 0.5 };
+  }
+  return null;
+}
+function localDate() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+async function getJSON(path) {
+  const r = await fetch(path, { cache: "no-cache" });
+  if (!r.ok) throw new Error(path + " " + r.status);
+  return r.json();
+}
+let ALL_DAYS = [];
+const PARAMS = new URLSearchParams(location.search);
+async function loadDay() {
+  let pick = "sample";
+  try {
+    const idx = await getJSON("data/index.json");
+    ALL_DAYS = (idx.days || []).slice().sort();
+    const today = localDate();
+    const past = ALL_DAYS.filter(d => d <= today);
+    if (past.length) pick = past[past.length - 1];
+    else if (ALL_DAYS.length) pick = ALL_DAYS[0];
+  } catch (e) { /* no index yet: fall back to the sample */ }
+  // Developer shortcut: ?day=2026-11-20 plays that day; ?dev shows a day picker.
+  const want = PARAMS.get("day");
+  if (want && (want === "sample" || ALL_DAYS.includes(want))) pick = want;
+  DAY = await getJSON("data/" + pick + ".json");
+  PAIRS = DAY.pairs;
+  PAIRS.forEach(p => { p.list = p.best.map(([w, fa, fb, s]) => ({ w, fa, fb, s })); });
+  if (PARAMS.has("dev")) devBar(pick);
+}
+function devBar(current) {
+  const bar = el("div", "devbar");
+  const label = el("label", "", "Dev: play day ");
+  const sel = el("select"); sel.id = "devDay";
+  const today = localDate();
+  ["sample", ...ALL_DAYS].forEach(d => {
+    const o = el("option", "", d === "sample" ? "sample" : d + (d === today ? " (today)" : d > today ? " (future)" : ""));
+    o.value = d; if (d === current) o.selected = true; sel.append(o);
+  });
+  sel.addEventListener("change", () => { location.search = "?dev&day=" + encodeURIComponent(sel.value); });
+  label.append(sel); bar.append(label);
+  document.querySelector(".wrap").prepend(bar);
+}
+function dayLabel() {
+  if (!DAY || DAY.scorer === false) return "Sample puzzle";
+  const [y, m, d] = DAY.date.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: "long", day: "numeric" });
+}
+function label(s) { return s >= 95 ? "Showstopper" : s >= 90 ? "Dead center" : s >= 75 ? "Steady" : s >= 55 ? "Wobbly" : s >= FALL_BELOW ? "Hanging on" : "Into the net"; }
+// Circus emoji for each tier, used on results and the share card.
+function tierEmoji(s) { return s >= 95 ? "\u{1F451}" : s >= 90 ? "\u{1F939}" : s >= 75 ? "\u{1F3A9}" : s >= 55 ? "\u{1F921}" : s >= FALL_BELOW ? "\u{1F648}" : "\u274C"; }
+function maxScore() { return PAIRS.length * 100; }
+function rankFor(total) {
+  const f = total / Math.max(1, maxScore());
+  return f >= .85 ? "Funambulist" : f >= .65 ? "Steady feet" : f >= .45 ? "Wobbly knees" : f >= .25 ? "Net regular" : "Ground crew";
+}
+
+/* ---------- State ---------- */
+const state = { phase: "intro", i: 0, results: [], deadline: 0 };
+const $ = id => document.getElementById(id);
+const panel = $("panel");
+const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Scene: inside the big top ---------- */
+const cv = $("scene"), ctx = cv.getContext("2d");
+const CSSV = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const COL = { a: CSSV("--a"), b: CSSV("--b"), gold: CSSV("--gold"), ink: CSSV("--ink"), danger: CSSV("--danger"), red: CSSV("--red") };
+const FLAGS = ["#d64550", "#f2b544", "#5fd0e6", "#f3e6c8"];
+let W = 0, H = 0, dpr = 1, crowd = [], confetti = [];
+let cheerFrom = 0, cheerUntil = 0;
+const signs = { a: "HIGH", b: "WIRE" };
+const walker = { t: 0.5, mode: "idle", from: 0, to: 0, start: 0, dur: 0, step: 0, x: 0, y: 0, vy: 0, rot: 0, score: null, fellAt: 0 };
+
+function rng(seed) { return () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }; }
+function resize() {
+  const r = cv.getBoundingClientRect();
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  W = Math.max(1, r.width); H = Math.max(1, r.height);
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  const R = rng(11);
+  crowd = [];
+  for (const [row, y, size] of [[0, 0.93, 0.045], [1, 1.0, 0.055]]) {
+    let x = -W * 0.02 + R() * W * 0.02;
+    while (x < W * 1.02) {
+      const s = H * size * (0.85 + R() * 0.3);
+      crowd.push({ row, x, y: H * y, s, phase: R() * 6, hat: R() < 0.12 });
+      x += s * (1.9 + R() * 0.5);
+    }
+  }
+}
+function geo() {
+  return { L: W * 0.2, R: W * 0.8, y0: H * 0.42, sag: H * 0.02, dip: H * 0.05, netY: H * 0.76, floorY: H * 0.86 };
+}
+function wireY(g, u, t, loaded) {
+  let y = g.y0 + g.sag * 4 * u * (1 - u);
+  if (loaded && t >= 0 && t <= 1) y += g.dip * (u <= t ? (t > 0 ? u / t : 0) : (t < 1 ? (1 - u) / (1 - t) : 0)) * Math.sin(Math.PI * Math.min(1, Math.max(0, t))) ** 0.3;
+  return y;
+}
+const ease = p => p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+
+const EDGE = -0.06;
+function walkTo(target, score, from) {
+  from = from === undefined ? EDGE : from;
+  walker.mode = "walk"; walker.from = from; walker.to = target; walker.start = performance.now();
+  walker.returning = false;
+  walker.dur = reduced ? 1 : 350 + 850 * Math.abs(target - from);
+  walker.doneAt = 0; walker.bounces = 0;
+  walker.score = score; walker.t = walker.from;
+}
+function resetWalker(t, mode) { walker.t = t; walker.mode = mode; walker.score = null; walker.rot = 0; walker.vy = 0; walker.doneAt = 0; walker.bounces = 0; }
+let shakeUntil = 0;
+
+// A good landing gets the crowd bobbing; a great one gets a puff of confetti.
+function applaud(now, score, x, y) {
+  if (reduced || score < 75) return;
+  cheerFrom = now; cheerUntil = now + (score >= 90 ? 1300 : 800);
+  if (score < 90) return;
+  for (let k = 0; k < 26; k++) {
+    const a = -Math.PI / 2 + (Math.random() - .5) * 1.9, v = H * (0.9 + Math.random() * 0.9);
+    confetti.push({ x, y, vx: Math.cos(a) * v * 0.6, vy: Math.sin(a) * v, rot: Math.random() * 6, vr: (Math.random() - .5) * 14,
+                    c: FLAGS[k % FLAGS.length], born: now, w: H * 0.016, h: H * 0.009 });
+  }
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const g = geo();
+  // advance walker
+  if (walker.mode === "walk") {
+    const p = Math.min(1, (now - walker.start) / walker.dur);
+    walker.t = walker.from + (walker.to - walker.from) * ease(p);
+    walker.step += dt * 9;
+    if (p >= 1 && walker.returning) { walker.mode = "idle"; walker.returning = false; }
+    else if (p >= 1) {
+      const falls = walker.score !== null && walker.score < FALL_BELOW;
+      walker.mode = falls ? "teeter" : "settle"; walker.fellAt = now;
+      if (!falls) { landed(now); applaud(now, walker.score || 0, g.L + walker.t * (g.R - g.L), wireY(g, walker.t, walker.t, true) - H * 0.17); }
+    }
+  } else if (walker.mode === "creep") {
+    // inch out slowly while the live scorer works, so there is no visible wait
+    if (!reduced) { walker.t += (0.2 - walker.t) * dt * 0.7; walker.step += dt * 4; }
+  } else if (walker.mode === "teeter" && now - walker.fellAt > (reduced ? 0 : 420)) {
+    walker.mode = "fall"; walker.x = g.L + walker.t * (g.R - g.L); walker.y = wireY(g, Math.max(0, Math.min(1, walker.t)), walker.t, true); walker.vy = 0;
+    walker.dir = walker.t < 0.5 ? -1 : 1;
+  } else if (walker.mode === "fall") {
+    walker.vy += H * 5.5 * dt; walker.y += walker.vy * dt; walker.rot += walker.dir * dt * 6;
+    if (walker.y >= g.netY || reduced) {
+      walker.y = g.netY;
+      if (walker.bounces === 0 && !reduced) { shakeUntil = now + 260; }
+      if (walker.bounces < 2 && walker.vy > H * 0.6 && !reduced) {
+        walker.vy = -walker.vy * 0.32; walker.bounces++;          // bounce in the net
+      } else {
+        walker.mode = "net"; walker.rot = walker.dir * 1.45; landed(now);
+      }
+    }
+  }
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.globalCompositeOperation = "source-over";
+  if (now < shakeUntil) {
+    const k = (shakeUntil - now) / 260 * H * 0.012;
+    ctx.translate((Math.random() - .5) * k, (Math.random() - .5) * k);
+  }
+  drawTent(g);
+  drawBunting(now);
+  drawRing(g);
+  drawRig(g);
+  drawSign(0, signs.a, COL.a, g, now); drawSign(1, signs.b, COL.b, g, now);
+
+  // walker position
+  const h = H * 0.17;
+  let fx, fy, ang;
+  if (walker.mode === "fall" || walker.mode === "net") {
+    fx = walker.x; fy = walker.y; ang = walker.rot + (walker.mode === "net" && !reduced ? Math.sin(now / 500) * .04 : 0);
+  } else {
+    const t = walker.t; fx = g.L + t * (g.R - g.L);
+    fy = t < 0 || t > 1 ? g.y0 - 2 : wireY(g, t, t, true);
+    const base = walker.mode === "idle" || walker.mode === "creep" ? 0 : (t - 0.5) * 0.7;
+    let wob = 0;
+    if (!reduced) {
+      if (walker.mode === "walk") wob = Math.sin(now / 160) * 0.05;
+      else if (walker.mode === "creep") wob = Math.sin(now / 240) * 0.08;
+      else if (walker.mode === "settle") wob = Math.sin(now / 260) * 0.25 * (100 - (walker.score ?? 100)) / 100;
+      else if (walker.mode === "teeter") wob = Math.sin((now - walker.fellAt) / 70) * Math.min(0.7, (now - walker.fellAt) / 900);
+      else if (walker.mode === "idle") wob = Math.sin(now / 700) * 0.04;
+    }
+    ang = base + wob;
+  }
+
+  drawSpotlight(fx, fy - h * 0.5, h);
+  // wire
+  const loaded = ["walk", "creep", "settle", "teeter", "idle"].includes(walker.mode);
+  ctx.strokeStyle = "#e9dcc0"; ctx.lineWidth = Math.max(1.5, H * 0.006); ctx.beginPath();
+  for (let k = 0; k <= 60; k++) { const u = k / 60; const x = g.L + u * (g.R - g.L), y = wireY(g, u, walker.t, loaded); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+  ctx.stroke();
+  // the middle: a little gold star on the wire
+  const mx = (g.L + g.R) / 2, my = wireY(g, .5, walker.t, loaded);
+  drawStar(mx, my, H * 0.016, COL.gold);
+
+  drawWalker(fx, fy, ang, h, walker.mode === "walk" || walker.mode === "creep" ? walker.step : 0);
+  drawConfetti(now, dt);
+  drawCrowd(now);
+
+  // vignette
+  const vg = ctx.createRadialGradient(W / 2, H * 0.45, Math.min(W, H) * 0.35, W / 2, H * 0.5, Math.max(W, H) * 0.75);
+  vg.addColorStop(0, "rgba(10,4,20,0)"); vg.addColorStop(1, "rgba(10,4,20,0.55)");
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+
+  // score tag
+  if ((walker.mode === "settle" || walker.mode === "net") && walker.score !== null) {
+    const fell = walker.mode === "net";
+    const tx = Math.min(W - 50, Math.max(50, fx));
+    const ty = fell ? fy - h * 0.75 : fy - h * 1.3;
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    const pop = reduced ? 1 : Math.min(1, (now - (walker.doneAt || now)) / 180);
+    ctx.font = `400 ${Math.round(H * 0.09 * (0.6 + 0.4 * pop + 0.15 * Math.sin(Math.min(1, pop) * Math.PI)))}px ${CSSV("--f-display")}`;
+    ctx.globalAlpha = pop;
+    ctx.lineWidth = Math.max(3, H * 0.012); ctx.strokeStyle = "#1a0e26"; ctx.lineJoin = "round";
+    const txt = fell ? "OOPS!" : String(walker.score);
+    ctx.strokeText(txt, tx, ty);
+    ctx.fillStyle = fell ? COL.danger : COL.gold;
+    ctx.fillText(txt, tx, ty);
+    ctx.globalAlpha = 1;
+  }
+  if (state.phase === "result" && state.advanceAt) {
+    const fill = document.getElementById("advanceFill");
+    if (fill) fill.style.transform = "scaleX(" + Math.min(1, (now - walker.doneAt) / (state.advanceAt - walker.doneAt)) + ")";
+    if (now >= state.advanceAt) advance();
+  }
+  requestAnimationFrame(frame);
+}
+
+function drawTent(g) {
+  ctx.fillStyle = "#140b24"; ctx.fillRect(0, 0, W, H);
+  // canvas stripes fanning out from the peak of the tent
+  const ax = W / 2, ay = -H * 0.35, n = 16, span = W * 1.6, x0 = (W - span) / 2;
+  for (let k = 0; k < n; k++) {
+    ctx.fillStyle = k % 2 ? "#5a1626" : "#a8946c";
+    ctx.beginPath(); ctx.moveTo(ax, ay);
+    ctx.lineTo(x0 + span * k / n, g.floorY); ctx.lineTo(x0 + span * (k + 1) / n, g.floorY); ctx.closePath(); ctx.fill();
+  }
+  // dim it to show-time lighting: darker high up, a little light near the ring
+  const dim = ctx.createLinearGradient(0, 0, 0, g.floorY);
+  dim.addColorStop(0, "rgba(16,8,30,0.88)"); dim.addColorStop(0.55, "rgba(16,8,30,0.72)"); dim.addColorStop(1, "rgba(16,8,30,0.6)");
+  ctx.fillStyle = dim; ctx.fillRect(0, 0, W, g.floorY);
+}
+
+function drawBunting(now) {
+  for (const [y0, sag, off] of [[H * 0.03, H * 0.07, 0], [H * 0.1, H * 0.06, 0.5]]) {
+    const curve = u => y0 + sag * 4 * u * (1 - u);
+    ctx.strokeStyle = "rgba(233,220,192,0.5)"; ctx.lineWidth = 1; ctx.beginPath();
+    for (let k = 0; k <= 30; k++) { const u = k / 30; k ? ctx.lineTo(u * W, curve(u)) : ctx.moveTo(0, curve(0)); }
+    ctx.stroke();
+    const count = Math.max(8, Math.round(W / 34));
+    for (let k = 0; k < count; k++) {
+      const u = (k + off) / count, x = u * W, y = curve(u), s = H * 0.035;
+      const sway = reduced ? 0 : Math.sin(now / 900 + k) * 0.08;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(sway);
+      ctx.fillStyle = FLAGS[(k + (off ? 2 : 0)) % FLAGS.length]; ctx.globalAlpha = 0.75;
+      ctx.beginPath(); ctx.moveTo(-s * 0.5, 0); ctx.lineTo(s * 0.5, 0); ctx.lineTo(0, s); ctx.closePath(); ctx.fill();
+      ctx.restore(); ctx.globalAlpha = 1;
+    }
+  }
+}
+
+function drawRing(g) {
+  ctx.fillStyle = "#3a2716"; ctx.fillRect(0, g.floorY, W, H - g.floorY);
+  ctx.save();
+  ctx.beginPath(); ctx.ellipse(W / 2, H * 1.04, W * 0.6, H * 0.2, 0, 0, Math.PI * 2);
+  ctx.fillStyle = "#8a6438"; ctx.fill();            // sawdust
+  ctx.lineWidth = H * 0.025; ctx.strokeStyle = "#9e2a35"; ctx.stroke();   // ring curb
+  ctx.setLineDash([H * 0.03, H * 0.03]); ctx.lineWidth = H * 0.012; ctx.strokeStyle = "#e9dcc0"; ctx.stroke();
+  ctx.restore();
+}
+
+function poleX(side, g) { return side ? g.R + W * 0.04 : g.L - W * 0.04; }
+function drawRig(g) {
+  // net between the poles
+  const nl = poleX(0, g), nr = poleX(1, g);
+  const nTop = u => g.netY - H * 0.03 + H * 0.05 * 4 * u * (1 - u);
+  ctx.strokeStyle = "#e9dcc0"; ctx.globalAlpha = .35; ctx.lineWidth = 1; ctx.beginPath();
+  const cells = 26, cw = (nr - nl) / cells;
+  for (let k = 0; k <= cells; k++) {
+    const u = k / cells, x = nl + u * (nr - nl);
+    ctx.moveTo(x, nTop(u)); ctx.lineTo(x + cw, nTop(Math.min(1, u + 1 / cells)) + H * 0.035);
+    ctx.moveTo(x, nTop(u)); ctx.lineTo(x - cw, nTop(Math.max(0, u - 1 / cells)) + H * 0.035);
+  }
+  ctx.stroke(); ctx.globalAlpha = .8; ctx.lineWidth = 2; ctx.beginPath();
+  for (let k = 0; k <= 30; k++) { const u = k / 30; const x = nl + u * (nr - nl); k ? ctx.lineTo(x, nTop(u)) : ctx.moveTo(x, nTop(u)); }
+  ctx.stroke(); ctx.globalAlpha = 1;
+  // striped poles and platforms
+  for (const side of [0, 1]) {
+    const px = poleX(side, g), pw = Math.max(6, W * 0.014), top = g.y0 + H * 0.02, band = H * 0.04;
+    for (let y = top, k = 0; y < g.floorY + H * 0.05; y += band, k++) {
+      ctx.fillStyle = k % 2 ? "#e9dcc0" : "#b8323f";
+      ctx.fillRect(px - pw / 2, y, pw, Math.min(band, g.floorY + H * 0.05 - y));
+    }
+    const half = W * 0.055, ph = H * 0.022;
+    ctx.fillStyle = "#c9932f"; ctx.fillRect(px - half, g.y0, half * 2, ph);
+    ctx.fillStyle = "#7d1e2c"; ctx.fillRect(px - half, g.y0 + ph, half * 2, ph * 0.45);
+    for (let k = 0; k < 6; k++) { ctx.fillStyle = "#ffe7a3"; ctx.beginPath(); ctx.arc(px - half + (k + 0.5) * half / 3, g.y0 + ph * 0.5, Math.max(1, H * 0.004), 0, 7); ctx.fill(); }
+  }
+}
+
+function drawSign(side, text, color, g, now) {
+  const cxRaw = poleX(side, g);
+  let fs = Math.min(H * 0.085, 40);
+  ctx.font = `400 ${fs}px ${CSSV("--f-display")}`;
+  let m = ctx.measureText(text).width;
+  const maxW = W * 0.28;
+  if (m > maxW) { fs *= maxW / m; ctx.font = `400 ${fs}px ${CSSV("--f-display")}`; m = ctx.measureText(text).width; }
+  const pad = fs * 0.55, bw = m + pad * 2, bh = fs * 1.55;
+  const cx = side ? Math.min(W - bw / 2 - 6, cxRaw) : Math.max(bw / 2 + 6, cxRaw);
+  const top = g.y0 - H * 0.07 - bh;
+  // posts down to the platform
+  ctx.fillStyle = "#c9932f";
+  ctx.fillRect(cx - bw * 0.28, top + bh, 2.5, g.y0 - top - bh); ctx.fillRect(cx + bw * 0.28 - 2.5, top + bh, 2.5, g.y0 - top - bh);
+  // marquee box
+  const r = Math.min(10, bh * 0.25);
+  ctx.fillStyle = "#1d1238"; roundRect(cx - bw / 2, top, bw, bh, r); ctx.fill();
+  ctx.strokeStyle = "#c9932f"; ctx.lineWidth = 2; roundRect(cx - bw / 2 + 1, top + 1, bw - 2, bh - 2, r); ctx.stroke();
+  // bulbs around the edge, twinkling slowly in a chase
+  const step = Math.max(9, fs * 0.42), inset = fs * 0.2;
+  const pts = [];
+  for (let x = cx - bw / 2 + inset; x <= cx + bw / 2 - inset + 0.1; x += step) { pts.push([x, top + inset]); pts.push([x, top + bh - inset]); }
+  for (let y = top + inset + step; y < top + bh - inset - step * 0.5; y += step) { pts.push([cx - bw / 2 + inset, y]); pts.push([cx + bw / 2 - inset, y]); }
+  pts.forEach(([x, y], k) => {
+    const on = reduced ? 0.9 : 0.55 + 0.45 * Math.sin(now / 380 - k * 0.7);
+    ctx.globalAlpha = on; ctx.fillStyle = "#ffe7a3";
+    ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, fs * 0.055), 0, 7); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.shadowColor = color; ctx.shadowBlur = fs * 0.35; ctx.fillStyle = color;
+  ctx.fillText(text, cx, top + bh * 0.54);
+  ctx.shadowBlur = 0;
+}
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+
+function drawStar(x, y, r, color) {
+  ctx.fillStyle = color; ctx.beginPath();
+  for (let k = 0; k < 10; k++) {
+    const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? r * 0.45 : r;
+    k ? ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr) : ctx.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  ctx.closePath(); ctx.fill();
+}
+
+function drawSpotlight(x, y, h) {
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  const beam = ctx.createLinearGradient(0, 0, 0, y + h);
+  beam.addColorStop(0, "rgba(255,236,190,0.0)"); beam.addColorStop(1, "rgba(255,236,190,0.07)");
+  ctx.fillStyle = beam; ctx.beginPath();
+  ctx.moveTo(x - W * 0.02, 0); ctx.lineTo(x + W * 0.02, 0); ctx.lineTo(x + h * 0.9, y + h * 0.8); ctx.lineTo(x - h * 0.9, y + h * 0.8); ctx.closePath(); ctx.fill();
+  const glow = ctx.createRadialGradient(x, y, 0, x, y, h * 1.3);
+  glow.addColorStop(0, "rgba(255,236,190,0.22)"); glow.addColorStop(1, "rgba(255,236,190,0)");
+  ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y, h * 1.3, 0, 7); ctx.fill();
+  ctx.restore();
+}
+
+function drawConfetti(now, dt) {
+  confetti = confetti.filter(p => now - p.born < 1700);
+  for (const p of confetti) {
+    p.vy += H * 1.6 * dt; p.vx *= 0.985; p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+    ctx.globalAlpha = Math.max(0, 1 - (now - p.born) / 1700);
+    ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * (0.4 + 0.6 * Math.abs(Math.cos(p.rot * 2))));
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawCrowd(now) {
+  const cheering = now < cheerUntil;
+  for (const p of crowd) {
+    let lift = 0;
+    if (cheering) lift = Math.abs(Math.sin((now - cheerFrom) / 110 + p.phase)) * H * 0.018 * Math.min(1, (cheerUntil - now) / 300);
+    const y = p.y - lift;
+    ctx.fillStyle = p.row ? "#0b0614" : "#150c24";
+    ctx.beginPath(); ctx.ellipse(p.x, y + p.s * 1.15, p.s * 1.05, p.s * 0.9, 0, Math.PI, 0); ctx.fill();     // shoulders
+    ctx.beginPath(); ctx.arc(p.x, y, p.s * 0.62, 0, 7); ctx.fill();                                        // head
+    if (p.hat) { ctx.fillRect(p.x - p.s * 0.5, y - p.s * 1.15, p.s, p.s * 0.6); ctx.fillRect(p.x - p.s * 0.8, y - p.s * 0.6, p.s * 1.6, p.s * 0.14); }
+  }
+}
+
+function drawWalker(x, y, ang, h, step) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  const hip = -h * 0.46, sh = -h * 0.8, sw = Math.sin(step) * h * 0.1, lw = Math.max(2, h * 0.05);
+  // balance pole, weighted in each sign's color
+  const pl = h * 1.15, py = sh + h * 0.06;
+  ctx.strokeStyle = "#c9932f"; ctx.lineWidth = Math.max(1.5, h * 0.025);
+  ctx.beginPath(); ctx.moveTo(-pl, py + h * 0.08); ctx.quadraticCurveTo(0, py - h * 0.05, pl, py + h * 0.08); ctx.stroke();
+  ctx.fillStyle = COL.a; ctx.beginPath(); ctx.arc(-pl, py + h * 0.08, h * 0.055, 0, 7); ctx.fill();
+  ctx.fillStyle = COL.b; ctx.beginPath(); ctx.arc(pl, py + h * 0.08, h * 0.055, 0, 7); ctx.fill();
+  // body
+  ctx.strokeStyle = COL.ink; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(0, hip); ctx.lineTo(-h * 0.07 + sw, 0); ctx.moveTo(0, hip); ctx.lineTo(h * 0.07 - sw, 0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, hip); ctx.lineTo(0, sh); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, sh + h * 0.03); ctx.lineTo(-h * 0.24, py + h * 0.01); ctx.moveTo(0, sh + h * 0.03); ctx.lineTo(h * 0.24, py + h * 0.01); ctx.stroke();
+  // red leotard stripe, head, and a little top hat
+  ctx.strokeStyle = COL.red; ctx.lineWidth = lw * 0.8; ctx.beginPath(); ctx.moveTo(0, hip - h * 0.02); ctx.lineTo(0, sh + h * 0.08); ctx.stroke();
+  ctx.fillStyle = COL.ink; ctx.beginPath(); ctx.arc(0, -h * 0.93, h * 0.08, 0, 7); ctx.fill();
+  ctx.fillStyle = "#1a0e26";
+  ctx.fillRect(-h * 0.11, -h * 1.0, h * 0.22, h * 0.03);                 // brim
+  ctx.fillRect(-h * 0.07, -h * 1.14, h * 0.14, h * 0.14);                // crown
+  ctx.fillStyle = COL.red; ctx.fillRect(-h * 0.07, -h * 1.035, h * 0.14, h * 0.03);  // hatband
+  ctx.restore();
+}
+
+/* ---------- UI ---------- */
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+function totalScore() { return state.results.reduce((s, r) => s + r.s, 0); }
+function renderHud() {
+  const pips = $("pips"); pips.innerHTML = "";
+  PAIRS.forEach((_, k) => {
+    const r = state.results[k]; const i = el("i");
+    if (r) i.className = r.s < FALL_BELOW ? "fell" : "done"; else if (k === state.i && state.phase === "play") i.className = "now";
+    pips.appendChild(i);
+  });
+  $("total").innerHTML = "<b>" + totalScore() + "</b> / " + maxScore();
+}
+
+function intro() {
+  state.phase = "intro"; panel.innerHTML = "";
+  signs.a = "HIGH"; signs.b = "WIRE"; resetWalker(0.5, "idle");
+  panel.classList.remove("ticket");
+  panel.append(el("div", "eyebrow", "Tonight's show \u00b7 " + dayLabel() + " \u00b7 " + PAIRS.length + " pairs"));
+  panel.append(el("h2", "prompt", "Walk the wire between two words."));
+  const ul = el("ul", "howto");
+  [
+    ["Each round, two words light up on the marquees. ", "Type a word (or two) that sits between them."],
+    ["Your word only scores well if ", "it fits both sides."],
+    ["Lean too far toward either word and ", "you fall into the net."],
+    ["You get ", "15 seconds per pair. Press Enter to keep moving."]
+  ].forEach(([x, y]) => { const li = el("li"); li.append(x); li.append(el("b", "", y)); ul.append(li); });
+  panel.append(ul);
+  const b = el("button", "btn", "Step right up"); b.type = "button"; b.addEventListener("click", () => startRound(0));
+  const row = el("div", "actions"); row.append(b); panel.append(row);
+  renderHud();
+}
+
+let timerRAF = null;
+function startRound(i) {
+  state.i = i;
+  const p = PAIRS[i];
+  signs.a = p.a.toUpperCase(); signs.b = p.b.toUpperCase();
+  resetWalker(EDGE, "idle");
+  renderPlay("");
+  startTimer(ROUND_MS);
+  renderHud();
+}
+
+function renderPlay(value) {
+  const i = state.i, p = PAIRS[i];
+  panel.innerHTML = ""; panel.classList.remove("ticket");
+  panel.append(el("div", "eyebrow", "Pair " + (i + 1) + " of " + PAIRS.length));
+  const h = el("h2", "prompt"); h.append("What's between "); h.append(el("span", "wa", p.a)); h.append(" and "); h.append(el("span", "wb", p.b)); h.append("?");
+  panel.append(h);
+  const f = el("form"); f.autocomplete = "off";
+  const inp = el("input"); inp.id = "guess"; inp.type = "text"; inp.maxLength = 40; inp.placeholder = "Your middle word"; inp.setAttribute("aria-label", "Your middle word"); inp.spellcheck = false; inp.setAttribute("autocapitalize", "off");
+  inp.value = value || "";
+  const go = el("button", "btn", "Step out"); go.type = "submit";
+  f.append(inp, go); panel.append(f);
+  const msg = el("div", "msg"); msg.id = "msg"; panel.append(msg);
+  f.addEventListener("submit", e => { e.preventDefault(); submit(inp.value); });
+  inp.focus({ preventScroll: true });
+}
+
+function startTimer(ms) {
+  state.phase = "play";
+  state.deadline = performance.now() + ms;
+  $("timerWrap").hidden = false;
+  cancelAnimationFrame(timerRAF);
+  const tick = () => {
+    if (state.phase !== "play") return;
+    const left = state.deadline - performance.now();
+    const bar = $("timerBar"); bar.style.transform = "scaleX(" + Math.max(0, left / ROUND_MS) + ")"; bar.classList.toggle("late", left < LATE_MS);
+    if (left <= 0) { timeUp(); return; }
+    timerRAF = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+function renderStepping(word) {
+  panel.innerHTML = "";
+  panel.append(el("div", "eyebrow", "Pair " + (state.i + 1) + " of " + PAIRS.length + (word ? " \u00b7 Drumroll\u2026" : "")));
+  const h = el("h2", "prompt");
+  if (word) { h.append("Stepping out on "); h.append(el("span", "", "\u201C" + word + "\u201D")); h.append("\u2026"); }
+  else h.append("Time's up\u2026");
+  panel.append(h);
+}
+
+function hint(text) {
+  const msg = $("msg"); msg.textContent = text; msg.className = "msg hint";
+  $("guess").select();                     // Enter accepts it; typing replaces it
+}
+
+function flash(text) {
+  const msg = $("msg"); msg.textContent = text; msg.className = "msg warn";
+  const inp = $("guess"); if (!reduced) { inp.classList.remove("shake"); void inp.offsetWidth; inp.classList.add("shake"); }
+  inp.select();
+}
+
+let pending = false;
+async function submit(raw) {
+  if (state.phase !== "play" || pending) return;
+  const p = PAIRS[state.i];
+  const text = normalize(raw);
+  if (!text) return flash(String(raw).trim() ? "Use one or two words, letters only." : "Type a word first.");
+  if (touchesSign(text, p.a, p.b)) return flash("That's too close to a sign. Find something in between.");
+  const hit = lookup(p, text);
+  if (hit) return finish({ word: hit.w, fa: hit.fa, fb: hit.fb, s: hit.s, t: hit.t });
+  if (!API_URL || DAY.scorer === false) return flash("\u201C" + text + "\u201D isn't in this puzzle's word list. Try another word.");
+
+  // Ask the live scorer. The walker starts inching out right away and the
+  // clock pauses, so a slow network never costs the player time.
+  pending = true;
+  const remaining = state.deadline - performance.now();
+  state.phase = "pending";
+  cancelAnimationFrame(timerRAF);
+  walker.mode = "creep";
+  renderStepping(text);
+  const giveBack = (msg, fill) => {       // not accepted: walk back, restore the clock, let them fix it
+    if (state.phase !== "pending") return;
+    walkTo(EDGE, null, walker.t); walker.returning = true;
+    renderPlay(fill || raw);
+    startTimer(Math.max(remaining, 4000));
+    if (fill) hint(msg); else flash(msg);
+  };
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(API_URL, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ day: DAY.date, pair: state.i, guess: text }), signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    const r = await res.json();
+    pending = false;
+    if (state.phase !== "pending") return;
+    if (r.status === "ok") return finish({ word: r.word, fa: r.fitA, fb: r.fitB, s: r.score, t: r.t });
+    if (r.status === "unknown") {
+      // Typo: put the likely word in the box so Enter accepts it (like Krillion's autocorrect).
+      if (r.suggestion) return giveBack("Did you mean \u201C" + r.suggestion + "\u201D? Press Enter to go with it.", r.suggestion);
+      return giveBack("Never heard of \u201C" + text + "\u201D. Try a real word.");
+    }
+    if (r.status === "sign") return giveBack("That's too close to a sign. Find something in between.");
+    if (r.status === "blocked") return giveBack("Let's keep it clean. Try another word.");
+    return giveBack("That one couldn't be scored. Try another word.");
+  } catch (e) {
+    pending = false;
+    giveBack("Couldn't reach the scorer. Check your connection and try again.");
+  }
+}
+
+function timeUp() { finish({ word: null, fa: 0, fb: 0, s: 0, t: 0.04 }); }
+
+function finish(r) {
+  state.phase = "result"; state.advanceAt = 0;
+  cancelAnimationFrame(timerRAF); $("timerWrap").hidden = true;
+  if (r.s < FALL_BELOW) r.s = 0;           // a fall scores nothing
+  state.results[state.i] = r;
+  walkTo(r.t, r.s, walker.mode === "creep" ? walker.t : EDGE);
+  renderStepping(r.word);
+}
+
+// Called by the animation the moment the walker settles on the wire or lands in the net.
+function landed(now) {
+  walker.doneAt = now;
+  if (state.phase !== "result") return;
+  const r = state.results[state.i];
+  state.advanceAt = now + (r.s < FALL_BELOW ? ADVANCE_FELL_MS : ADVANCE_MS) + (reduced ? 800 : 0);
+  renderVerdict(r);
+}
+
+function advance() {
+  if (state.phase !== "result") return;
+  state.advanceAt = 0;
+  if (state.i === PAIRS.length - 1) end(); else startRound(state.i + 1);
+}
+
+function renderVerdict(r) {
+  const p = PAIRS[state.i];
+  renderHud();
+  panel.innerHTML = "";
+  const fell = r.s < FALL_BELOW;
+  const v = el("div", "verdict" + (fell ? " fell" : ""));
+  v.append(el("span", "num", String(r.s)), el("span", "lbl", (r.word ? label(r.s) : "Time's up") + " " + tierEmoji(r.s)));
+  const you = el("span", "you");
+  if (r.word) { you.append("You said "); you.append(el("b", "", r.word)); you.append(fell ? ", and leaned too far toward " + (r.t < .5 ? p.a : p.b) + "." : "."); }
+  else you.append("The clock ran out before you stepped out.");
+  v.append(you); panel.append(v);
+  if (r.word) {
+    const fits = el("div", "fits");
+    [[p.a, r.fa, "var(--a)"], [p.b, r.fb, "var(--b)"]].forEach(([name, val, c]) => {
+      const k = el("span", "k", "Fits " + name);
+      const bar = el("span", "bar"); const i = el("i"); i.style.width = val + "%"; i.style.background = c; bar.append(i);
+      fits.append(k, bar, el("span", "v", String(val)));
+    });
+    panel.append(fits);
+  }
+  panel.append(el("div", "eyebrow", "Best middles"));
+  const best = el("div", "best");
+  p.list.slice(0, 6).forEach(e => { const c = el("span", "chip" + (r.word && pluralForms(r.word).includes(e.w) ? " mine" : "")); c.append(e.w); c.append(el("span", "", String(e.s))); best.append(c); });
+  panel.append(best);
+  const lastPair = state.i === PAIRS.length - 1;
+  const nb = el("button", "btn next", lastPair ? "See results" : "Next pair"); nb.type = "button";
+  const fill = el("i", "fill"); fill.id = "advanceFill"; nb.prepend(fill);
+  nb.addEventListener("click", advance);
+  const row = el("div", "actions"); row.append(nb); panel.append(row);
+}
+
+function shareText() {
+  const lines = ["Highwire \u{1F3AA} \u00b7 " + dayLabel(), ""];
+  state.results.forEach(r => {
+    const slots = 11, pos = Math.round(r.t * (slots - 1));
+    let s = "";
+    for (let k = 0; k < slots; k++) s += k === pos ? (r.s < FALL_BELOW ? "✕" : "●") : "─";
+    lines.push("▕" + s + "▏ " + (r.s < FALL_BELOW ? "fell" : r.s) + " " + tierEmoji(r.s));
+  });
+  lines.push("", totalScore() + "/" + maxScore() + " · " + rankFor(totalScore()));
+  return lines.join("\n");
+}
+
+function end() {
+  state.phase = "end"; panel.innerHTML = ""; panel.classList.add("ticket");
+  signs.a = "BRAVO"; signs.b = "ENCORE"; resetWalker(0.5, "idle");
+  const total = totalScore();
+  const stub = el("div", "stub");
+  stub.append(el("div", "eyebrow", "Admit one \u00b7 Highwire \u00b7 " + dayLabel()));
+  stub.append(el("h2", "rank", rankFor(total)));
+  stub.append(el("div", "eyebrow", total + " / " + maxScore() + " points"));
+  panel.append(stub);
+  const rows = el("div", "rows");
+  state.results.forEach((r, k) => {
+    const p = PAIRS[k]; const row = el("div", "row");
+    const wire = el("div", "wire");
+    const fell = r.s < FALL_BELOW;
+    const d = el("span", "dot" + (fell ? " x" : ""), fell ? "✕" : "");
+    d.style.left = (Math.max(.04, Math.min(.96, r.t)) * 100) + "%";
+    d.append(el("em", "", r.word || "—"));
+    wire.append(d);
+    row.append(el("span", "ea", p.a), wire, el("span", "eb", p.b), el("span", "sc", fell ? "0" : String(r.s)), el("span", "em", tierEmoji(r.s)));
+    rows.append(row);
+  });
+  panel.append(rows);
+  const actions = el("div", "actions");
+  const copy = el("button", "btn", "Copy result"); copy.type = "button";
+  const again = el("button", "btn ghost", "Play again"); again.type = "button";
+  const note = el("span", "note");
+  actions.append(copy, again, note); panel.append(actions);
+  const share = el("div", "share"); panel.append(share);
+  copy.addEventListener("click", () => {
+    const text = shareText();
+    const fallback = () => {
+      share.innerHTML = ""; const ta = el("textarea"); ta.readOnly = true; ta.value = text; ta.setAttribute("aria-label", "Result text"); share.append(ta); ta.focus(); ta.select();
+      note.textContent = "Select and copy the text above.";
+    };
+    try { navigator.clipboard.writeText(text).then(() => { copy.textContent = "Copied"; setTimeout(() => copy.textContent = "Copy result", 1500); }, fallback); }
+    catch (e) { fallback(); }
+  });
+  again.addEventListener("click", () => { state.results = []; startRound(0); });
+  renderHud();
+}
+
+// Enter starts the game and skips the pause after a landing.
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter" || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target && e.target.closest && e.target.closest("button, select, textarea, input")) return;  // those handle Enter themselves
+  if (state.phase === "result" && state.advanceAt) { e.preventDefault(); advance(); }
+  else if (state.phase === "intro" && PAIRS.length) { e.preventDefault(); startRound(0); }
+});
+
+window.addEventListener("resize", resize);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
+resize();
+requestAnimationFrame(frame);
+panel.append(el("div", "eyebrow", "Loading tonight's wires…"));
+loadDay().then(intro).catch(err => {
+  console.error(err);
+  panel.innerHTML = "";
+  panel.append(el("h2", "prompt", "The wires are down."));
+  panel.append(el("p", "note", "Today's puzzle didn't load. Refresh to try again."));
+});
+
+window.__hw = { lookup, normalize, touchesSign, label, rankFor, submit, state, get PAIRS() { return PAIRS; }, get DAY() { return DAY; } };
+})();
+</script>
+</body>
+</html>
